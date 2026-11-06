@@ -1,0 +1,17 @@
+# Cloned reference repo, read only
+reference/
+
+# Rendered PDFs are build artifacts. Regenerate with run.ps1 / run.sh.
+courses/*/dist/
+
+# No secrets, ever
+.env
+*.key
+*.pem
+.credentials.json
+
+# Local scratch
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

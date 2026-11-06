@@ -1,0 +1,76 @@
+/* Lab document theme. Lab guides render with this automatically.
+
+   Measured from the reference lab format: Poppins throughout, title 23pt,
+   section 17pt, step 14pt, body at the document default, one blue accent
+   (#6FA8DC), US Letter with one inch margins.
+
+   Poppins is not installed on this machine, so it is embedded from
+   build/fonts/ at render time. It is licensed under the SIL Open Font License,
+   which permits redistribution and embedding. Do not swap it for a lookalike
+   without checking that font's licence. */
+
+:root {
+  --bg: #ffffff;
+  --slide-bg: #ffffff;
+  --notes-bg: #f4f6f8;
+  --visual-bg: #f6f8fa;
+  --code-bg: #f2f4f6;
+
+  --fg: #202124;
+  --fg-strong: #000000;
+  --fg-muted: #434343;      /* the sample's heading grey */
+  --fg-faint: #6b7076;
+
+  --accent: #6fa8dc;        /* the sample's blue */
+  --accent-ink: #3d7fbf;    /* darker, for text on white */
+
+  --rule: #e3e7ea;
+  --rule-strong: #c6ccd2;
+
+  --warn: #8a2f2f;
+  --warn-ink: #ffffff;
+
+  --font-display: Poppins, "Segoe UI", system-ui, sans-serif;
+  --font-body: Poppins, "Segoe UI", system-ui, sans-serif;
+  --font-ui: Poppins, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  --display-weight: 600;
+
+  --doc-size: 11pt;
+}
+
+/* US Letter, one inch, as the sample. The base sheet is A4. */
+@page { size: 8.5in 11in; margin: 1in; }
+
+/* Heading scale lifted from the sample: 23 / 17 / 14 point. */
+.doc h1 { font-size: 23pt; font-weight: 600; color: var(--fg-strong); }
+.doc h2 { font-size: 17pt; font-weight: 600; color: var(--fg-strong); }
+.doc h3 { font-size: 14pt; font-weight: 600; color: var(--fg-muted); }
+.doc h4 { font-size: 12pt; font-weight: 600; color: var(--fg-muted); }
+
+.doc { font-size: var(--doc-size); line-height: 1.5; }
+
+/* The sample carries its structure in bold lead-ins rather than in headings:
+   Purpose, Part A, Student Action, Notice, Why This Matters. Markdown renders
+   those as <strong> at the start of a paragraph. */
+.doc p > strong:first-child { color: var(--fg-strong); }
+
+/* Screenshots and extracted video frames sit inline, full measure, framed
+   lightly so a pale terminal does not bleed into the page. */
+.doc img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.9em auto;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+/* A figure caption, when a frame needs one. */
+.doc img + em {
+  display: block;
+  text-align: center;
+  font-size: 9.5pt;
+  color: var(--fg-faint);
+  margin-top: -0.5em;
+}

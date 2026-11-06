@@ -1,0 +1,518 @@
+/* Layout shared by every theme. Palette and type live in the theme file,
+   which is loaded before this and sets the --custom properties.
+
+   Rules encoded here come from STYLE.md: 16:9 slides, generous whitespace,
+   code readable from the back of a room, no decorative imagery. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--font-body);
+  font-size: var(--doc-size);
+  line-height: 1.55;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------------------------------------------------------------- documents */
+
+.doc main { max-width: 100%; }
+
+.doc-head {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.6em;
+  margin-bottom: 1.6em;
+}
+
+.doc-kicker {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5em;
+}
+
+.doc-title {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  line-height: 1.15;
+  margin: 0 0 0.35em;
+  color: var(--fg-strong);
+  font-weight: var(--display-weight);
+}
+
+.doc-meta {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+
+.doc h1, .doc h2, .doc h3, .doc h4 {
+  font-family: var(--font-display);
+  color: var(--fg-strong);
+  font-weight: var(--display-weight);
+  line-height: 1.25;
+  margin: 1.6em 0 0.5em;
+  /* Never stranded at the foot of a page, and never cut in half by the
+     boundary. Without break-inside a two-line heading splits and the reader
+     gets only its tail: in an answer key that is the line naming the criterion
+     and the outcome being marked. */
+  break-after: avoid;
+  page-break-after: avoid;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.doc h2 { font-size: 1.42rem; }
+.doc h3 { font-size: 1.12rem; }
+.doc h4 { font-size: 0.98rem; color: var(--fg); }
+
+.doc p { margin: 0 0 0.85em; }
+.doc ul, .doc ol { margin: 0 0 0.95em; padding-left: 1.35em; }
+.doc li { margin-bottom: 0.3em; }
+.doc li > ul, .doc li > ol { margin-top: 0.3em; }
+
+.doc strong { color: var(--fg-strong); }
+
+.doc a { color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+
+.doc blockquote {
+  margin: 1.1em 0;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid var(--accent);
+  color: var(--fg-muted);
+}
+
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.1em 0;
+  font-size: 0.86rem;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.doc th, .doc td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5em 0.6em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.doc thead th {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  border-bottom: 2px solid var(--accent);
+}
+
+.doc code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--code-bg);
+  padding: 0.12em 0.34em;
+  border-radius: 3px;
+}
+
+.doc pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--accent);
+  padding: 0.85em 1em;
+  /* Never overflow-x on a printed page: a page cannot scroll, so anything past
+     the box edge is deleted from the PDF text layer with no warning. Wrap. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-radius: 4px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.doc pre code { background: none; padding: 0; font-size: 0.82rem; line-height: 1.5; }
+
+.doc-foot {
+  margin-top: 2.4em;
+  padding-top: 0.7em;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+}
+
+/* The instructor warning has to appear on every printed page, and it must not
+   land on top of anything, because an occluded line leaves no seam: the reader
+   sees a sentence that starts mid-clause and has no way to know a line is
+   missing. Three mechanisms were measured before this one:
+
+     position: fixed, top: 0     repeats, but reserves no space. Chrome anchors
+                                 a fixed element to the page content area, so it
+                                 sits exactly on the first line of text. Page one
+                                 escaped only because a container padding-top
+                                 pushed page one's flow down -- padding is spent
+                                 once, so pages 2..n printed underneath it.
+     ...plus a deeper @page top  moves ribbon and text down together. No gain.
+     ...plus a negative offset   Chrome relocates the band to the foot of the
+                                 page and drops it from the last page entirely.
+
+   So the ribbon is a running header for real: a thead on a table wrapping the
+   whole document. Chrome repeats a thead on every page it breaks across, and
+   because the thead is in flow it takes its own space instead of covering
+   someone else's. Overlap stops being something to tune and becomes impossible.
+   render.py wraps instructor documents in this frame. */
+.doc table.page-frame {
+  width: 100%;
+  margin: 0;
+  font-size: inherit;
+  border-collapse: collapse;
+  table-layout: fixed;
+  /* .doc table sets these to keep content tables whole; the frame is the
+     document, so it must be free to break across every page. */
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+/* The frame is structure, not a table anyone should see: none of the cell
+   rules that dress up a content table apply to it. */
+.doc .page-frame > thead > tr > td,
+.doc .page-frame > tbody > tr > td { border: 0; padding: 0; }
+.doc .page-frame > thead > tr > td { padding-bottom: 5mm; }
+
+.instructor-ribbon {
+  height: 6mm;
+  line-height: 6mm;        /* fixed height, so the clearance below the ribbon
+                              does not move when a theme changes the UI font */
+  background: var(--warn);
+  color: var(--warn-ink);
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ slides */
+
+.deck { background: var(--slide-bg); }
+
+.slide {
+  position: relative;
+  width: 13.333in;
+  height: 7.5in;
+  padding: 0.75in 0.9in 0.55in;
+  display: flex;
+  flex-direction: column;
+  background: var(--slide-bg);
+  break-after: page;
+  page-break-after: always;
+  overflow: hidden;
+}
+
+.slide:last-child { break-after: auto; page-break-after: auto; }
+
+.slide-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content fills the space under the title, so a short slide sits centred
+   rather than stranded against the top edge with dead space below it. */
+.slide-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.slide-content > .col-text { min-width: 0; }
+.slide-content > .col-visual { min-width: 0; min-height: 0; }
+
+/* Text left, diagram right, both vertically centred on each other. */
+.slide-content.split {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5in;
+}
+
+.slide-content.split > .col-text { flex: 1 1 46%; }
+
+.slide-content.split > .col-visual {
+  flex: 1 1 54%;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+/* Bullets are tighter beside a diagram: the column is half as wide. */
+.slide-content.split .slide-bullets { font-size: 24px; }
+.slide-content.split .slide-bullets li { margin-bottom: 0.5em; }
+
+.slide-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 40px;
+  line-height: 1.16;
+  color: var(--fg-strong);
+  margin: 0 0 0.55em;
+  max-width: 10.5in;
+}
+
+.slide-title::after {
+  content: "";
+  display: block;
+  width: 2.6in;
+  height: 3px;
+  background: var(--accent);
+  margin-top: 0.42em;
+}
+
+.slide-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 27px;
+  line-height: 1.45;
+}
+
+.slide-bullets li {
+  position: relative;
+  padding-left: 1.15em;
+  margin-bottom: 0.62em;
+}
+
+.slide-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.42em;
+  height: 0.42em;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.slide .codehilite,
+.slide pre {
+  background: var(--code-bg);
+  border-left: 4px solid var(--accent);
+  padding: 0.7em 0.9em;
+  border-radius: 5px;
+  margin: 0.7em 0 0;
+  /* Same rule as `.doc pre`, and it is needed here for a different reason:
+     `.slide` is a fixed box with `overflow: hidden`, so a line wider than the
+     slide is clipped away rather than scrolled. Wrap instead of overflowing.
+     Wrapping makes a long line taller, and `.slide` clips the bottom just as
+     silently, so STYLE.md's 12-line cap on slide code is what keeps the two
+     from trading places. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* STYLE.md: readable from the back of a room. */
+.slide pre code {
+  font-family: var(--font-mono);
+  font-size: 21px;
+  line-height: 1.42;
+}
+
+.slide code { font-family: var(--font-mono); }
+
+/* Visual: is an instruction for a designer, not an image. Render it as a
+   clearly-unfinished placeholder so nobody ships it by accident. */
+.visual {
+  margin: 0.9em 0 0;
+  border: 2px dashed var(--rule-strong);
+  border-radius: 6px;
+  padding: 0.55em 0.8em;
+  background: var(--visual-bg);
+}
+
+.visual figcaption {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 0.25em;
+}
+
+.visual p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--fg-muted);
+}
+
+/* A missing Visual-src asset. Loud on purpose: a broken image must not be
+   mistakable for a diagram that simply has not been drawn yet. */
+.visual-missing {
+  border: 2px solid var(--warn);
+  background: var(--visual-bg);
+}
+
+.visual-missing figcaption { color: var(--warn); }
+.visual-missing p { font-family: var(--font-mono); color: var(--warn); }
+
+/* --------------------------------------------------------------------
+   Live visuals: an authored SVG diagram or an image asset. No frame and
+   no caption, because a finished diagram is the content, not a note
+   about the content.
+   -------------------------------------------------------------------- */
+
+.visual-live {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visual-live figcaption { display: none; }
+
+.visual-live > svg,
+.visual-live > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.svg-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* --------------------------------------------------------------------
+   Diagram vocabulary. An authored SVG uses these class names instead of
+   literal colours, so every diagram in the deck inherits the course
+   theme and a reskin never has to touch a diagram. Documented for
+   authors in build/README.md.
+   -------------------------------------------------------------------- */
+
+.fill-ink     { fill: var(--fg-strong); }
+.fill-muted   { fill: var(--fg-muted); }
+.fill-faint   { fill: var(--fg-faint); }
+.fill-accent  { fill: var(--accent); }
+.fill-panel   { fill: var(--visual-bg); }
+.fill-code    { fill: var(--code-bg); }
+.fill-slide   { fill: var(--slide-bg); }
+.fill-none    { fill: none; }
+
+.stroke-ink    { stroke: var(--fg-strong); }
+.stroke-muted  { stroke: var(--fg-muted); }
+.stroke-rule   { stroke: var(--rule-strong); }
+.stroke-accent { stroke: var(--accent); }
+.stroke-none   { stroke: none; }
+
+/* Composites: the shapes every course diagram actually needs. */
+.box {
+  fill: var(--slide-bg);
+  stroke: var(--rule-strong);
+  stroke-width: 2;
+}
+
+.box-accent {
+  fill: var(--visual-bg);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.box-solid { fill: var(--fg-strong); stroke: none; }
+
+.connector {
+  fill: none;
+  stroke: var(--fg-muted);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.connector-accent {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.dashed { stroke-dasharray: 7 6; }
+
+/* Diagram type. Sizes are in user units, so they scale with the viewBox;
+   the guidance in build/README.md fixes the viewBox width that makes
+   these land at a readable size on a projected slide. */
+.visual-live svg text {
+  font-family: var(--font-ui);
+  fill: var(--fg-strong);
+}
+
+.label       { font-size: 28px; }
+.label-lg    { font-size: 36px; font-weight: 600; }
+.label-sm    { font-size: 22px; fill: var(--fg-muted); }
+.label-mono  { font-family: var(--font-mono); font-size: 26px; }
+.label-strong{ font-weight: 600; }
+
+.slide-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--fg-faint);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.5em;
+  margin-top: 0.5em;
+}
+
+.foot-mid { letter-spacing: 0.08em; }
+.foot-right { font-variant-numeric: tabular-nums; }
+
+/* Instructor deck: each slide is followed by its notes on a facing page. */
+.notes-page {
+  width: 13.333in;
+  height: 7.5in;
+  padding: 0.9in 1.1in;
+  background: var(--notes-bg);
+  break-after: page;
+  page-break-after: always;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-page:last-child { break-after: auto; page-break-after: auto; }
+
+.notes-head {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.6em;
+  margin-bottom: 0.9em;
+}
+
+.notes-body {
+  flex: 1;
+  font-size: 24px;
+  line-height: 1.62;
+  color: var(--fg);
+  max-width: 62ch;
+}
+
+.notes-covers {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--fg-faint);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.5em;
+}
+
+.deck.projection .notes-page { display: none; }
